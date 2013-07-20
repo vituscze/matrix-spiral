@@ -60,24 +60,32 @@ module Writer where
 open Writer
 
 -- Few useful lemmas.
-*-zero : ∀ m → m * 0 ≡ 0
-*-zero = solve 1 (λ m → m :* con 0 := con 0) refl
+*-zero = solve 1 (λ m → m :* 0′ := 0′) refl
+  where
+  0′ = con 0
 
-lem₁ : ∀ m n → (2 + m + (1 + n + (1 + m + n))) ≡ 4 + 2 * m + 2 * n
 lem₁ = solve 2 (λ m n →
-  con 2 :+ m :+ (con 1 :+ n :+ (con 1 :+ m :+ n))
-    := con 4 :+ con 2 :* m :+ con 2 :* n) refl
+  2′ :+ m :+ (1′ :+ n :+ (1′ :+ m :+ n))
+    := 4′ :+ 2′ :* m :+ 2′ :* n) refl
+  where
+  1′ = con 1
+  2′ = con 2
+  4′ = con 4
 
-lem₂ : ∀ m → m + 0 * (2 + m) ≡ m
-lem₂ = solve 1 (λ m → m :+ con 0 :* (con 2 :+ m) := m) refl
+lem₂ = solve 2 (λ m n → m :+ 0′ :* n := m) refl
+  where
+  0′ = con 0
 
-lem₃ : ∀ m → m * 1 ≡ m
-lem₃ = solve 1 (λ m → m :* con 1 := m) refl
+lem₃ = solve 1 (λ m → m :* 1′ := m) refl
+  where
+  1′ = con 1
 
-lem₄ : ∀ m n → (4 + 2 * m + 2 * n) + m * n ≡ (2 + m) * (2 + n)
 lem₄ = solve 2 (λ m n →
-  (con 4 :+ con 2 :* m :+ con 2 :* n) :+ m :* n
-    := (con 2 :+ m) :* (con 2 :+ n)) refl
+  (4′ :+ 2′ :* m :+ 2′ :* n) :+ m :* n
+    := (2′ :+ m) :* (2′ :+ n)) refl
+  where
+  2′ = con 2
+  4′ = con 4
 
 -- Variant of 'split' that rotates the rest of matrix 90° clockwise.
 splitR : ∀ {m n a} {A : Set a} → Matrix A m (suc n) → Matrix A n m × Vec A m
@@ -93,7 +101,7 @@ spiral : ∀ {m n a} {A : Set a} → Matrix A m n → Vec A (m * n)
 spiral {zero}        {_}           as      = []
 spiral {suc m}       {zero}        as      rewrite *-zero m = []
 spiral {suc zero}    {suc zero}    (a ∷ _) = a
-spiral {suc zero}    {suc (suc n)} (a ∷ _) rewrite lem₂ n = a
+spiral {suc zero}    {suc (suc n)} (a ∷ _) rewrite lem₂ n (2 * n) = a
 spiral {suc (suc m)} {suc zero}    as      rewrite lem₃ m = proj₁ (split as)
 spiral {suc (suc m)} {suc (suc n)} as with outer as
 ... | i , o rewrite sym (lem₄ m n) = o ++ spiral i
