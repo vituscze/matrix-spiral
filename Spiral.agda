@@ -65,8 +65,8 @@ open Writer
   0′ = con 0
 
 lem₁ = solve 2 (λ m n →
-  2′ :+ m :+ (1′ :+ n :+ (1′ :+ m :+ n))
-    := 4′ :+ 2′ :* m :+ 2′ :* n) refl
+  4′ :+ 2′ :* m :+ 2′ :* n
+    := 2′ :+ m :+ (1′ :+ n :+ (1′ :+ m :+ n))) refl
   where
   1′ = con 1
   2′ = con 2
@@ -81,8 +81,8 @@ lem₃ = solve 1 (λ m → m :* 1′ := m) refl
   1′ = con 1
 
 lem₄ = solve 2 (λ m n →
-  (4′ :+ 2′ :* m :+ 2′ :* n) :+ m :* n
-    := (2′ :+ m) :* (2′ :+ n)) refl
+  (2′ :+ m) :* (2′ :+ n)
+    := (4′ :+ 2′ :* m :+ 2′ :* n) :+ m :* n) refl
   where
   2′ = con 2
   4′ = con 4
@@ -94,7 +94,7 @@ splitR = liftM rotate ∘ swap ∘ split
 -- Splits a matrix into outer edge and inner core.
 outer : ∀ {m n a} {A : Set a} →
         Matrix A (2 + m) (2 + n) → Matrix A m n × Vec A (4 + 2 * m + 2 * n)
-outer {m} {n} rewrite sym (lem₁ m n) = splitR >=> splitR >=> splitR >=> splitR
+outer {m} {n} rewrite lem₁ m n = splitR >=> splitR >=> splitR >=> splitR
 
 -- Produces a spiral of matrix by repeatedly applying 'outer'.
 spiral : ∀ {m n a} {A : Set a} → Matrix A m n → Vec A (m * n)
@@ -104,4 +104,4 @@ spiral {suc zero}    {suc zero}    (a ∷ _) = a
 spiral {suc zero}    {suc (suc n)} (a ∷ _) rewrite lem₂ n (2 * n) = a
 spiral {suc (suc m)} {suc zero}    as      rewrite lem₃ m = proj₁ (split as)
 spiral {suc (suc m)} {suc (suc n)} as with outer as
-... | i , o rewrite sym (lem₄ m n) = o ++ spiral i
+... | i , o rewrite lem₄ m n = o ++ spiral i
